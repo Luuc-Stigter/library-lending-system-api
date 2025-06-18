@@ -9,6 +9,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/users")
@@ -31,7 +32,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserDto> createUser(@RequestBody UserInputDto userInputDto) {
+    public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserInputDto userInputDto) {
         UserDto newUser = userService.createUser(userInputDto);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{username}").buildAndExpand(newUser.username).toUri();
