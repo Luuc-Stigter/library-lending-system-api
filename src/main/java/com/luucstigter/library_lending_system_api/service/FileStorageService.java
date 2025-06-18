@@ -11,6 +11,9 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 import java.util.UUID;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import java.net.MalformedURLException;
 
 @Service
 public class FileStorageService {
@@ -41,6 +44,20 @@ public class FileStorageService {
             return uniqueFilename;
         } catch (IOException ex) {
             throw new RuntimeException("Kon het bestand " + originalFilename + " niet opslaan. Probeer het alstublieft opnieuw!", ex);
+        }
+    }
+
+    public Resource loadFileAsResource(String fileName) {
+        try {
+            Path filePath = this.fileStorageLocation.resolve(fileName).normalize();
+            Resource resource = new UrlResource(filePath.toUri());
+            if (resource.exists()) {
+                return resource;
+            } else {
+                throw new RuntimeException("File niet gevonden " + fileName);
+            }
+        } catch (MalformedURLException ex) {
+            throw new RuntimeException("File niet gevonden " + fileName, ex);
         }
     }
 }
