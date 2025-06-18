@@ -7,17 +7,24 @@ import jakarta.persistence.*;
 @Table(name = "items")
 public class Item {
 
+    @OneToOne(
+            mappedBy = "item",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    private DigitalBookFile digitalBookFile;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // Corresponds to item_id
+    private Long id;
 
-    // Enum zou hier nog beter zijn, maar voor nu is String prima
-    private String type; // e.g., "HARDCOVER", "PAPERBACK", "EBOOK_PDF"
-    private String status; // e.g., "AVAILABLE", "ON_LOAN", "RESERVED"
+    private String type;
+    private String status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id", nullable = false)
-    @JsonIgnore // HEEL BELANGRIJK!
+    @JsonIgnore
     private Book book;
 
     // Getters en Setters
@@ -29,4 +36,6 @@ public class Item {
     public void setStatus(String status) { this.status = status; }
     public Book getBook() { return book; }
     public void setBook(Book book) { this.book = book; }
+    public DigitalBookFile getDigitalBookFile() { return digitalBookFile; }
+    public void setDigitalBookFile(DigitalBookFile digitalBookFile) { this.digitalBookFile = digitalBookFile; }
 }

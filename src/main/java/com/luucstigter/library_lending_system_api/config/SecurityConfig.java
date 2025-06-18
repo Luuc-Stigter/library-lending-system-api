@@ -38,6 +38,9 @@ public class SecurityConfig {
                         // Alleen een LIBRARIAN mag boeken of items aanmaken/wijzigen/verwijderen
                         .requestMatchers("/api/books/**", "/api/items/**").hasRole("LIBRARIAN")
 
+                        // Alleen een LIBRARIAN mag bestanden uploaden
+                        .requestMatchers(HttpMethod.POST, "/api/items/**/file").hasRole("LIBRARIAN")
+
                         // Elke andere request moet ingelogd zijn
                         .anyRequest().authenticated()
                 )
