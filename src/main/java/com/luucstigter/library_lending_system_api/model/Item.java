@@ -7,6 +7,14 @@ import jakarta.persistence.*;
 @Table(name = "items")
 public class Item {
 
+    @OneToOne(
+            mappedBy = "item",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    private DigitalBookFile digitalBookFile;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // Corresponds to item_id
@@ -29,4 +37,6 @@ public class Item {
     public void setStatus(String status) { this.status = status; }
     public Book getBook() { return book; }
     public void setBook(Book book) { this.book = book; }
+    public DigitalBookFile getDigitalBookFile() { return digitalBookFile; }
+    public void setDigitalBookFile(DigitalBookFile digitalBookFile) { this.digitalBookFile = digitalBookFile; }
 }
