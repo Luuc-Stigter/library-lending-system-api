@@ -27,18 +27,25 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        // Alleen een LIBRARIAN mag users bekijken, aanmaken of verwijderen
+                        // User management
                         .requestMatchers(HttpMethod.GET, "/api/users", "/api/users/**").hasRole("LIBRARIAN")
                         .requestMatchers(HttpMethod.POST, "/api/users").hasRole("LIBRARIAN")
                         .requestMatchers(HttpMethod.DELETE, "/api/users/**").hasRole("LIBRARIAN")
 
-                        // Boeken en items mogen door iedereen met een geldig account bekeken worden
+                        // File I/O
+                        .requestMatchers(HttpMethod.POST, "/api/items/*/file").hasRole("LIBRARIAN")
+                        .requestMatchers(HttpMethod.GET, "/api/download/**").authenticated()
+
+                        // Loan management
+                        .requestMatchers(HttpMethod.POST, "/api/loans/item/**").hasRole("MEMBER")
+
+                        // Book & Item viewing
                         .requestMatchers(HttpMethod.GET, "/api/books", "/api/books/**", "/api/items/**").authenticated()
 
-                        // Alleen een LIBRARIAN mag boeken of items aanmaken/wijzigen/verwijderen
+                        // Book & Item management
                         .requestMatchers("/api/books/**", "/api/items/**").hasRole("LIBRARIAN")
 
-                        // Elke andere request moet ingelogd zijn
+                        // Fallback
                         .anyRequest().authenticated()
                 )
                 .httpBasic(withDefaults());
