@@ -92,4 +92,37 @@ class BookServiceTest {
         assertEquals("Foundation", savedBook.getTitle());
         verify(bookRepository, times(1)).save(any(Book.class));
     }
+
+    @Test
+    void testDeleteBookSuccess() {
+        // Arrange
+        when(bookRepository.existsById(1L)).thenReturn(true);
+        doNothing().when(bookRepository).deleteById(1L);
+
+        // Act
+        // Roep de methode aan. We verwachten geen return-waarde.
+        bookService.deleteBook(1L);
+
+        // Assert
+        // Verifiëer dat de deleteById methode exact 1 keer is aangeroepen met het juiste ID.
+        verify(bookRepository, times(1)).deleteById(1L);
+    }
+
+    @Test
+    void testDeleteBookThrowsException() {
+        // Arrange
+        // Simuleer dat het boek niet bestaat.
+        when(bookRepository.existsById(99L)).thenReturn(false);
+
+        // Act & Assert
+        // Controller of de juiste exceptie wordt gegooid.
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
+            bookService.deleteBook(99L);
+        });
+
+        // Assert (extra controles)
+        assertEquals("Boek niet gevonden met id: 99", exception.getMessage());
+        // Verifiëer dat de deleteById methode NOOIT is aangeroepen.
+        verify(bookRepository, never()).deleteById(99L);
+    }
 }
