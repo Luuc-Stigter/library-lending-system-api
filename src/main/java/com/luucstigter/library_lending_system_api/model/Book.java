@@ -1,10 +1,19 @@
 package com.luucstigter.library_lending_system_api.model;
 
 import jakarta.persistence.*;
+import java.util.Set;
 
 @Entity
 @Table(name = "books")
 public class Book {
+
+    @OneToMany(
+            mappedBy = "book",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    private Set<Item> items;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -83,4 +92,7 @@ public class Book {
     public void setGenre(String genre) {
         this.genre = genre;
     }
+
+    public Set<Item> getItems() { return items; }
+    public void setItems(Set<Item> items) { this.items = items; }
 }
