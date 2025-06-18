@@ -17,15 +17,14 @@ public class Item {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // Corresponds to item_id
+    private Long id;
 
-    // Enum zou hier nog beter zijn, maar voor nu is String prima
-    private String type; // e.g., "HARDCOVER", "PAPERBACK", "EBOOK_PDF"
-    private String status; // e.g., "AVAILABLE", "ON_LOAN", "RESERVED"
+    private String type;
+    private String status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id", nullable = false)
-    @JsonIgnore // HEEL BELANGRIJK!
+    @JsonIgnore
     private Book book;
 
     // Getters en Setters
