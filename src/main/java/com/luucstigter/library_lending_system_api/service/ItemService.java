@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.luucstigter.library_lending_system_api.model.DigitalBookFile;
 import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDate;
+import com.luucstigter.library_lending_system_api.exception.ResourceConflictException;
 
 import java.util.List;
 
@@ -57,6 +58,11 @@ public class ItemService {
         // 1. Zoek het item op
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new ResourceNotFoundException("Item niet gevonden met id: " + itemId));
+
+        // Controleer of dit item al een gekoppeld bestand heeft.
+        if (item.getDigitalBookFile() != null) {
+            throw new ResourceConflictException("Item met id " + itemId + " heeft al een gekoppelde file.");
+        }
 
         // 2. Sla het fysieke bestand op met de FileStorageService
         String storedFileName = fileStorageService.storeFile(file);
