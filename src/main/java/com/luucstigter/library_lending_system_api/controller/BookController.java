@@ -30,12 +30,26 @@ public class BookController {
     @PostMapping
     public ResponseEntity<Book> addBook(@RequestBody Book book) {
         Book newBook = bookService.addBook(book);
-
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(newBook.getId())
-                .toUri();
-
+                .path("/{id}").buildAndExpand(newBook.getId()).toUri();
         return ResponseEntity.created(location).body(newBook);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Book> getBookById(@PathVariable Long id) {
+        Book book = bookService.getBookById(id);
+        return ResponseEntity.ok(book);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Book> updateBook(@PathVariable Long id, @RequestBody Book bookDetails) {
+        Book updatedBook = bookService.updateBook(id, bookDetails);
+        return ResponseEntity.ok(updatedBook);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
+        bookService.deleteBook(id);
+        return ResponseEntity.noContent().build();
     }
 }
