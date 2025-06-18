@@ -41,6 +41,9 @@ public class SecurityConfig {
                         // Alleen een LIBRARIAN mag bestanden uploaden
                         .requestMatchers(HttpMethod.POST, "/api/items/**/file").hasRole("LIBRARIAN")
 
+                        // Iedereen die ingelogd is mag downloaden
+                        .requestMatchers(HttpMethod.GET, "/api/download/**").authenticated()
+
                         // Elke andere request moet ingelogd zijn
                         .anyRequest().authenticated()
                 )
