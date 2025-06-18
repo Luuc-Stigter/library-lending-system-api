@@ -125,4 +125,51 @@ class BookServiceTest {
         // Verifiëer dat de deleteById methode NOOIT is aangeroepen.
         verify(bookRepository, never()).deleteById(99L);
     }
+
+    @Test
+    void testUpdateBookSuccess() {
+        // Arrange
+        // Maak een DTO object met de nieuwe details
+        Book updateDetails = new Book();
+        updateDetails.setTitle("Dune Messiah");
+        updateDetails.setAuthor("Frank Herbert");
+        updateDetails.setPublicationYear(1969);
+        updateDetails.setIsbn(book1.getIsbn());
+        updateDetails.setGenre(book1.getGenre());
+        updateDetails.setPublisher(book1.getPublisher());
+
+
+        // Simuleer dat het boek met ID 1 bestaat
+        when(bookRepository.findById(1L)).thenReturn(Optional.of(book1));
+        // Simuleer dat het opslaan het bijgewerkte boek teruggeeft
+        when(bookRepository.save(any(Book.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Act
+        Book result = bookService.updateBook(1L, updateDetails);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1L, result.getId());
+        assertEquals("Dune Messiah", result.getTitle()); // Controleer de gewijzigde titel
+        assertEquals(1969, result.getPublicationYear()); // Controleer het gewijzigde jaar
+        verify(bookRepository, times(1)).save(any(Book.class)); // Controleer of save is aangeroepen
+    }
+
+    @Test
+    void testUpdateBookThrowsException() {
+        // Arrange
+        Book updateDetails = new Book();
+        // Simuleer dat het boek met ID 99 niet bestaat
+        when(bookRepository.findById(99L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        // Controleer of de juiste exceptie wordt gegooid, omdat getBookById wordt aangeroepen
+        assertThrows(ResourceNotFoundException.class, () -> {
+            bookService.updateBook(99L, updateDetails);
+        });
+
+        // Assert (extra controle)
+        // Verifiëer dat de save methode NOOIT is aangeroepen, omdat de code faalde voordat we bij het opslaan kwamen.
+        verify(bookRepository, never()).save(any(Book.class));
+    }
 }
