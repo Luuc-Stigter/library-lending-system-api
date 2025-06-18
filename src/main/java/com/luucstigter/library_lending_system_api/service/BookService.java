@@ -1,22 +1,27 @@
 package com.luucstigter.library_lending_system_api.service;
 
+import com.luucstigter.library_lending_system_api.exception.ResourceConflictException;
 import com.luucstigter.library_lending_system_api.exception.ResourceNotFoundException;
 import com.luucstigter.library_lending_system_api.model.Book;
+import com.luucstigter.library_lending_system_api.model.Item;
 import com.luucstigter.library_lending_system_api.repository.BookRepository;
+import com.luucstigter.library_lending_system_api.repository.LoanRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class BookService {
 
     private final BookRepository bookRepository;
+    private final LoanRepository loanRepository;
 
     @Autowired
-    public BookService(BookRepository bookRepository) {
+    public BookService(BookRepository bookRepository, LoanRepository loanRepository) {
         this.bookRepository = bookRepository;
+        this.loanRepository = loanRepository;
     }
 
     public List<Book> getAllBooks() {
@@ -45,10 +50,18 @@ public class BookService {
         return bookRepository.save(book);
     }
 
+    @Transactional
     public void deleteBook(Long id) {
-        if (!bookRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Boek niet gevonden met id: " + id);
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Boek niet gevonden met id: " + id));
+
+        for (Item item : book.getItems()) {
+            boolean hasActiveLoan = loanRepository.existsByItemAndStatus(item, "ACTIVE");
+            if (hasActiveLoan) {
+                throw new ResourceConflictException("Kan boek niet verwijderen. Minstens één exemplaar (ID: " + item.getId() + ") is momenteel uitgeleend.");
+            }
         }
+
         bookRepository.deleteById(id);
     }
 }
